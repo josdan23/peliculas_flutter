@@ -1,10 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:peliculas_app/models/movie.dart';
 
 
-class MovieSlider extends StatelessWidget {
+class MovieSlider extends StatefulWidget {
+
+  List<Movie> popularMovies;
+  String? description;
+  final Function onNextPage;
   
+
+  MovieSlider( {
+    required this.popularMovies,
+    this.description, 
+    required this.onNextPage
+  });
+
+  @override
+  State<MovieSlider> createState() => _MovieSliderState();
+}
+
+class _MovieSliderState extends State<MovieSlider> {
+
+
+  final ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    scrollController.addListener(() {
+      
+      if ( scrollController.position.pixels >= scrollController.position.maxScrollExtent - 500 ) 
+        this.widget.onNextPage();
+    });
+    
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+  
+
   @override
   Widget build(BuildContext context) {
+
     return Container(
       width: double.infinity,
       height: 270,
@@ -12,16 +53,27 @@ class MovieSlider extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric( horizontal: 20),
-            child: Text('Popular', style: TextStyle( fontSize: 20, fontWeight: FontWeight.bold ),),
-          ),
+
+          if (this.widget.description != null)
+            Padding(
+              padding: EdgeInsets.symmetric( horizontal: 20),
+              child: Text(
+                '${this.widget.description}', 
+                style: TextStyle( 
+                  fontSize: 20, 
+                  fontWeight: FontWeight.bold 
+                ),
+              ),
+            ),
 
           Expanded(
             child: ListView.builder(
-              itemCount: 20,
+              controller: scrollController,
+              itemCount: this.widget.popularMovies.length ,
               scrollDirection: Axis.horizontal,
-              itemBuilder: ( context, index) => _MoviePoster(),
+              itemBuilder: ( _ , index)  {
+                return _MoviePoster( movie: widget.popularMovies[ index ]);
+              }
             ),
           ),
         ],
@@ -32,6 +84,10 @@ class MovieSlider extends StatelessWidget {
 
 
 class _MoviePoster extends StatelessWidget {
+
+  final Movie movie;
+
+  _MoviePoster({ required this.movie });
   
 
   @override
@@ -44,12 +100,12 @@ class _MoviePoster extends StatelessWidget {
       child: Column(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, 'details', arguments: 'movie-instance'), 
+            onTap: () => Navigator.pushNamed(context, 'details', arguments: movie), 
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: FadeInImage(
                 placeholder: AssetImage('assets/no-image.jpg'), 
-                image: NetworkImage('https://via.placeholder.com/300x400'),
+                image: NetworkImage(movie.fullPathImg),
                 fit: BoxFit.cover,
                 height: 180,
                 width: 130,
@@ -57,12 +113,12 @@ class _MoviePoster extends StatelessWidget {
             ),
           ),
 
-          SizedBox(
+          const SizedBox(
             height: 5,
           ),
           
           Text(
-            'El retorno del jedi silvestr dle monste cristo',
+            movie.title,
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
             textAlign: TextAlign.center,
