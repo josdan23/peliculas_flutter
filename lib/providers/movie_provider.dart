@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:peliculas_app/models/credits_response.dart';
 import 'package:peliculas_app/models/movie.dart';
 import 'package:peliculas_app/models/now_playing_response.dart';
 import 'package:peliculas_app/models/popular_response.dart';
@@ -16,6 +17,10 @@ class MoviesProvider extends ChangeNotifier {
   List<Movie> popularMovies = [];
 
   int _popularPage = 0;
+
+
+  final Map<int, List<Cast>> castMovie = {} ;
+
 
   MoviesProvider(){
     print('Movie provider creado');
@@ -65,6 +70,22 @@ class MoviesProvider extends ChangeNotifier {
     this.popularMovies = [ ...this.popularMovies, ...popularResponse.results ];
 
     notifyListeners();
+  }
+
+
+  Future<List<Cast>> getMovieCast( int movieId ) async {
+
+    if ( castMovie.containsKey(movieId)) return castMovie[movieId]!;
+
+    print('solicitando cast de movie');
+
+    final jsonData = await getJsonData( '3/movie/$movieId/credits' );
+    final creditsResponse = CreditsResponse.fromJson(jsonData);
+
+    castMovie[ movieId ] = creditsResponse.cast;
+
+    return creditsResponse.cast;
+
   }
 
 }
