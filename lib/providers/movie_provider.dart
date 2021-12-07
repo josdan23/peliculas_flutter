@@ -6,6 +6,7 @@ import 'package:peliculas_app/models/credits_response.dart';
 import 'package:peliculas_app/models/movie.dart';
 import 'package:peliculas_app/models/now_playing_response.dart';
 import 'package:peliculas_app/models/popular_response.dart';
+import 'package:peliculas_app/models/search_response.dart';
 
 class MoviesProvider extends ChangeNotifier {
 
@@ -32,7 +33,7 @@ class MoviesProvider extends ChangeNotifier {
 
   Future<String> getJsonData( String endpoint, [int page = 1]) async {
 
-    var url = Uri.https( _urlBase, endpoint, {
+    final url = Uri.https( _urlBase, endpoint, {
       'api_key': _apiKey,
       'language': _language,
       'page': '$page'
@@ -85,6 +86,22 @@ class MoviesProvider extends ChangeNotifier {
     castMovie[ movieId ] = creditsResponse.cast;
 
     return creditsResponse.cast;
+
+  }
+
+  Future<List<Movie>> searchMovies( String query ) async {
+
+    final url = Uri.https( _urlBase, '3/search/movie', {
+      'api_key': _apiKey,
+      'language': _language,
+      'query': query
+    }); 
+
+    final response = await http.get(url);
+    
+    final searchresponse = SearchResponse.fromJson( response.body );
+
+    return searchresponse.results;
 
   }
 
