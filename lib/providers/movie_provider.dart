@@ -24,7 +24,7 @@ class MoviesProvider extends ChangeNotifier {
 
 
   MoviesProvider(){
-    print('Movie provider creado');
+    // print('Movie provider creado');
 
     this.getOnDisplayMovies();
     this.getPopularMovies();
@@ -50,7 +50,7 @@ class MoviesProvider extends ChangeNotifier {
 
     //final dataDecoded = json.decode( response.body );
 
-    print( nowPlayingResponse.results[0].title );
+    // print( nowPlayingResponse.results[0].title );
 
     this.onDisplayMovies = nowPlayingResponse.results;
 
